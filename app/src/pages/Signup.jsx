@@ -19,16 +19,29 @@ export default function SignupPage() {
     city_municipality: "",
     province: "",
     region: "",
-    emergency_contact: [],
+    emergency_contact: { guardian: "", contact_number: "" },
     contact_number: "",
   });
 
   const handleChange = (event) => {
+    const { name, value } = event.target;
+    const keys = name.split(".");
+
     setFormData((prevFormData) => {
-      return {
-        ...prevFormData,
-        [event.target.name]: event.target.value,
-      };
+      if (keys.length === 1) {
+        return {
+          ...prevFormData,
+          [name]: value,
+        };
+      } else {
+        return {
+          ...prevFormData,
+          [keys[0]]: {
+            ...prevFormData[keys[0]],
+            [keys[1]]: value,
+          },
+        };
+      }
     });
   };
 
@@ -104,6 +117,24 @@ export default function SignupPage() {
           </option>
           <option value="Business Analytics">Business Analytics</option>
         </select>
+        <select id="region"></select>
+        <input type="hidden" name="region_text" id="region-text" />
+
+        <select id="province"></select>
+        <input type="hidden" name="province_text" id="province-text" />
+
+        <select id="city"></select>
+        <input type="hidden" name="city_text" id="city-text" />
+
+        <select id="barangay"></select>
+        <input type="hidden" name="barangay_text" id="barangay-text" />
+
+        <p>In case of emergency:</p>
+        <input type="text" name="emergency_contact.guardian" />
+        <input type="number" name="emergency_contact.contact_number" />
+
+        <input type="number" name="contact_number" />
+
         <button className="border w-16" disabled={loading}>
           {loading ? <span>Redirecting...</span> : <span>Signup</span>}
         </button>
