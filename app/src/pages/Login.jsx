@@ -1,70 +1,54 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 
-export default function Auth() {
+export default function Login({ setSession }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return;
-
-    let newOtp = [...otp];
-    newOtp[index] = element.value;
-    setOtp(newOtp);
-
-    if (element.nextSibling && element.value) {
-      element.nextSibling.focus();
-    }
-
-    if (newOtp.every((value) => value !== "")) {
-      handleOtpSubmit(newOtp);
-    }
-  };
-
-  const handleKeyDown = (event, index) => {
-    if (
-      event.key === "Backspace" &&
-      !otp[index] &&
-      event.target.previousSibling
-    ) {
-      event.target.previousSibling.focus();
-    }
-  };
+  const [id_number, setIDNumber] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
 
-    if (error) {
-      alert(error.error_description || error.message);
-    } else {
-      setDialogOpen(true);
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id_number", id_number)
+      .single();
+
+    if (fetchError) {
+      console.log(`Error fetching user: ${fetchError.message}`);
     }
-    setLoading(false);
-  };
 
-  const handleOtpSubmit = async (event, optArray) => {
-    event.preventDefault();
+    if (user) {
+      const isPasswordValid = password === user.password;
 
-    setLoading(true);
+      const { data: userData, error: fetchError } = await supabase
+        .from(`${user.user_type}s`)
+        .select("*")
+        .eq("id_number", id_number)
+        .single();
 
-    const optValue = optArray.join("");
-    const { session, error } = await supabase.auth.verifyOtp({
-      email,
-      token: optValue,
-      type: "email",
-    });
+      if (fetchError) {
+        console.log(`Error fetching user: ${fetchError.message}`);
+      }
 
-    if (error) {
-      alert(error.error_description || error.message);
+      if (isPasswordValid) {
+        setSession({
+          user: userData,
+          userType: user.user_type,
+        });
+        navigate("/dashboard");
+      } else {
+        alert("Wrong Password");
+      }
     } else {
-      setDialogOpen(false);
+      alert("Not registered");
     }
+
     setLoading(false);
   };
 
@@ -72,39 +56,27 @@ export default function Auth() {
     <div>
       <form onSubmit={handleLogin}>
         <input
-          type="email"
-          placeholder="Email Address"
-          onChange={(e) => setEmail(e.target.value)}
+          className="bg-red"
+          type="text"
+          placeholder="ID Number"
+          pattern="^\d{2}-\d{5}$"
+          maxLength="8"
+          onChange={(e) => setIDNumber(e.target.value)}
           required
         />
-        <button className={"button block"} disabled={loading}>
-          {loading ? <span>Processing...</span> : <span>Login</span>}
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button disabled={loading}>
+          {loading ? <span>Logging In...</span> : <span>Login</span>}
         </button>
       </form>
       <p>
-        Don't have an account? <Link to="/signup">Sign up</Link>
-      </p>
-      <dialog open={isDialogOpen}>
-        <h1>Please verify your e-mail address</h1>
-        We've sent an OTP code to <em className="font-bold">{email}</em> to
-        verify your email address and activate your account. The OTP code will
-        expire in 10 mins.
-        <form>
-          {otp.map((data, index) => (
-            <input
-              key={index}
-              type="text"
-              inputMode="numeric"
-              maxLength="1"
-              pattern="[0-9]"
-              required
-              value={data}
-              onChange={(e) => handleChange(e.target, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-            />
-          ))}
-        </form>
-      </dialog>
+          Don't have an account? <Link to="/signup">Sign up</Link>
+        </p>
     </div>
   );
 }
