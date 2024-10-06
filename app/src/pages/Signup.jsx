@@ -5,6 +5,7 @@ import { supabase } from "../services/supabaseClient";
 export default function SignupPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
   const [formData, setFormData] = useState({
     id_number: "",
     given_name: "",
@@ -49,23 +50,7 @@ export default function SignupPage() {
     event.preventDefault();
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          id_number: formData.id_number,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-        },
-      },
-    });
 
-    if (error) {
-      alert(error.error_description || error.message);
-    } else {
-      navigate("/checkemail", { state: { email: formData.email } });
-    }
     setLoading(false);
   };
 
@@ -81,8 +66,8 @@ export default function SignupPage() {
         />
         <input
           type="text"
-          name="first_name"
-          placeholder="First Name"
+          name="given_name"
+          placeholder="Given Name"
           onChange={handleChange}
         />
         <input
@@ -97,51 +82,84 @@ export default function SignupPage() {
           placeholder="Last Name"
           onChange={handleChange}
         />
-        <input type="date" name="date_of_birth" onChange={handleChange} />
-        <select name="college" onChange={handleChange}>
-          <option value="" disabled selected>
-            -- College --
+        {!isStudent ? (
+          ""
+        ) : (
+          <>
+            <input type="date" name="date_of_birth" onChange={handleChange} />
+
+            <select name="college" defaultValue="" onChange={handleChange}>
+              <option value="" disabled>
+                -- College --
+              </option>
+              <option value="CCSICT">CCSICT</option>
+              <option value="CED">CED</option>
+            </select>
+
+            <select name="course" defaultValue="" onChange={handleChange}>
+              <option value="" disabled>
+                -- Course --
+              </option>
+              <option value="Computer Science">Computer Science</option>
+            </select>
+
+            <select name="section" defaultValue="" onChange={handleChange}>
+              <option value="" disabled>
+                -- Section --
+              </option>
+              <option value="Business Analytics">Business Analytics</option>
+            </select>
+
+            <select id="region" defaultValue=""></select>
+            <input type="hidden" name="region_text" id="region-text" />
+
+            <select id="province" defaultValue=""></select>
+            <input type="hidden" name="province_text" id="province-text" />
+
+            <select id="city" defaultValue=""></select>
+            <input type="hidden" name="city_text" id="city-text" />
+
+            <select id="barangay" defaultValue=""></select>
+            <input type="hidden" name="barangay_text" id="barangay-text" />
+
+            <p>In case of emergency:</p>
+            <input
+              type="text"
+              name="emergency_contact.guardian"
+              onChange={handleChange}
+            />
+            <input
+              type="number"
+              name="emergency_contact.contact_number"
+              onChange={handleChange}
+            />
+            <input
+              type="number"
+              name="contact_number"
+              onChange={handleChange}
+            />
+          </>
+        )}
+
+        <select
+          name="user_type"
+          defaultValue=""
+          onChange={(e) => setIsStudent(e.target.value === "student")}
+        >
+          <option value="" disabled>
+            -- Account Type --
           </option>
-          <option value="CCSICT">CCSICT</option>
-          <option value="CED">CED</option>
+          <option value="student">Student</option>
+          <option value="educator">Educator</option>
         </select>
-        <select name="course" onChange={handleChange}>
-          <option value="" disabled selected>
-            -- Course --
-          </option>
-          <option value="Computer Science">Computer Science</option>
-        </select>
-        <select name="section" onChange={handleChange}>
-          <option value="" disabled selected>
-            -- Section --
-          </option>
-          <option value="Business Analytics">Business Analytics</option>
-        </select>
-        <select id="region"></select>
-        <input type="hidden" name="region_text" id="region-text" />
-
-        <select id="province"></select>
-        <input type="hidden" name="province_text" id="province-text" />
-
-        <select id="city"></select>
-        <input type="hidden" name="city_text" id="city-text" />
-
-        <select id="barangay"></select>
-        <input type="hidden" name="barangay_text" id="barangay-text" />
-
-        <p>In case of emergency:</p>
-        <input type="text" name="emergency_contact.guardian" />
-        <input type="number" name="emergency_contact.contact_number" />
-
-        <input type="number" name="contact_number" />
 
         <button className="border w-16" disabled={loading}>
           {loading ? <span>Redirecting...</span> : <span>Signup</span>}
         </button>
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
       </form>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 }
