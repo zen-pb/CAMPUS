@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { Login, Signup, Dashboard } from "./pages";
+import { Login, Signup, ForgotPassword, Dashboard } from "./pages";
 
 function App() {
   const navigate = useNavigate();
@@ -52,6 +52,7 @@ function App() {
             )
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
       </Routes>
     </>
   );
