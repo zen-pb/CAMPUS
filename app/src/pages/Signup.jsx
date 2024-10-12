@@ -92,8 +92,6 @@ export default function SignupPage() {
     event.preventDefault();
 
     setLoading(true);
-
-    setLoading(false);
   };
 
   return (
@@ -239,7 +237,7 @@ export default function SignupPage() {
           <option value="educator">Educator</option>
         </select>
 
-        <button className="border w-16" disabled={loading}>
+        <button disabled={loading}>
           {loading ? <span>Redirecting...</span> : <span>Signup</span>}
         </button>
       </form>

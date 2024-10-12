@@ -74,9 +74,10 @@ export default function Login({ setSession }) {
           {loading ? <span>Logging In...</span> : <span>Login</span>}
         </button>
       </form>
+      <Link to="/forgot-password">Forgot password?</Link>
       <p>
-          Don't have an account? <Link to="/signup">Sign up</Link>
-        </p>
+        Don't have an account? <Link to="/signup">Sign up</Link>
+      </p>
     </div>
   );
 }
