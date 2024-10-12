@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../services/supabaseClient";
+import { supabase } from "../services/supabaseClient"; 
+import { fetchRegions, fetchProvincesByRegion, fetchCitiesMunicipalitiesByProvince, fetchBarangaysByCityMunicipality } from "../api/psgcApi"; 
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -25,6 +26,11 @@ export default function SignupPage() {
     emergency_contact: { guardian: "", contact_number: "" },
   });
 
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     const keys = name.split(".");
@@ -45,6 +51,41 @@ export default function SignupPage() {
         };
       }
     });
+  };
+
+  useEffect(() => {
+    fetchRegions()
+      .then((data) => setRegions(data))
+      .catch((error) => console.error("Error fetching regions:", error));
+  }, []);
+
+  const handleRegionChange = (event) => {
+    const regionCode = event.target.value;
+    handleChange(event); 
+
+    fetchProvincesByRegion(regionCode)
+      .then((data) => setProvinces(data))
+      .catch((error) => console.error("Error fetching provinces:", error));
+  };
+
+  // Handle province change
+  const handleProvinceChange = (event) => {
+    const provinceCode = event.target.value;
+    handleChange(event);
+
+    fetchCitiesMunicipalitiesByProvince(provinceCode)
+      .then((data) => setCities(data))
+      .catch((error) => console.error("Error fetching cities:", error));
+  };
+
+  // Handle city/municipality change
+  const handleCityMunicipalityChange = (event) => {
+    const cityCode = event.target.value;
+    handleChange(event);
+
+    fetchBarangaysByCityMunicipality(cityCode)
+      .then((data) => setBarangays(data))
+      .catch((error) => console.error("Error fetching barangays:", error));
   };
 
   const handleSignup = async (event) => {
@@ -75,22 +116,25 @@ export default function SignupPage() {
         <input
           type="text"
           name="middle_name"
+          placeholder="Middle Name"
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="last_name"
           placeholder="Last Name"
           onChange={handleChange}
         />
-        {!isStudent ? (
-          ""
-        ) : (
+
+        {isStudent && (
           <>
             <input type="date" name="date_of_birth" onChange={handleChange} />
-
             <input
               type="email"
-              name="Email"
+              name="email"
               placeholder="Email"
               onChange={handleChange}
             />
-
             <input
               type="tel"
               maxLength="11"
@@ -121,27 +165,61 @@ export default function SignupPage() {
               <option value="Business Analytics">Business Analytics</option>
             </select>
 
-            <select id="region" defaultValue=""></select>
-            <input type="hidden" name="region_text" id="region-text" />
+            <select name="region" onChange={handleRegionChange}>
+              <option value="">
+                -- Select Region --
+              </option>
+              {regions.map((region) => (
+                <option key={region.code} value={region.code}>
+                  {region.name}
+                </option>
+              ))}
+            </select>
 
-            <select id="province" defaultValue=""></select>
-            <input type="hidden" name="province_text" id="province-text" />
+            <select name="province" onChange={handleProvinceChange}>
+              <option value="">
+                -- Select Province --
+              </option>
+              {provinces.map((province) => (
+                <option key={province.code} value={province.code}>
+                  {province.name}
+                </option>
+              ))}
+            </select>
 
-            <select id="city" defaultValue=""></select>
-            <input type="hidden" name="city_text" id="city-text" />
+            <select name="city_municipality" onChange={handleCityMunicipalityChange}>
+              <option value="">
+                -- Select City/Municipality --
+              </option>
+              {cities.map((city) => (
+                <option key={city.code} value={city.code}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
 
-            <select id="barangay" defaultValue=""></select>
-            <input type="hidden" name="barangay_text" id="barangay-text" />
+            <select name="barangay" onChange={handleChange}>
+              <option value="">
+                -- Select Barangay --
+              </option>
+              {barangays.map((barangay) => (
+                <option key={barangay.code} value={barangay.code}>
+                  {barangay.name}
+                </option>
+              ))}
+            </select>
 
             <p>In case of emergency:</p>
             <input
               type="text"
               name="emergency_contact.guardian"
+              placeholder="Guardian"
               onChange={handleChange}
             />
             <input
               type="number"
               name="emergency_contact.contact_number"
+              placeholder="Contact Number"
               onChange={handleChange}
             />
           </>
