@@ -209,6 +209,8 @@ export default function SignupPage() {
               ))}
             </select>
 
+            <input type="text" name="street" placeholder="Street" onChange={handleChange} />
+
             <p>In case of emergency:</p>
             <input
               type="text"
