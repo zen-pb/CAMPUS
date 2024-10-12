@@ -12,6 +12,8 @@ export default function SignupPage() {
     middle_name: "",
     last_name: "",
     date_of_birth: "",
+    email: "",
+    contact_number: "",
     college: "",
     course: "",
     section: "",
@@ -21,7 +23,6 @@ export default function SignupPage() {
     province: "",
     region: "",
     emergency_contact: { guardian: "", contact_number: "" },
-    contact_number: "",
   });
 
   const handleChange = (event) => {
@@ -62,6 +63,7 @@ export default function SignupPage() {
           name="id_number"
           placeholder="ID Number"
           pattern="^\d{2}-\d{5}$"
+          maxLength="8"
           onChange={handleChange}
         />
         <input
@@ -76,17 +78,26 @@ export default function SignupPage() {
           placeholder="Last Name"
           onChange={handleChange}
         />
-        <input
-          type="text"
-          name="last_name"
-          placeholder="Last Name"
-          onChange={handleChange}
-        />
         {!isStudent ? (
           ""
         ) : (
           <>
             <input type="date" name="date_of_birth" onChange={handleChange} />
+
+            <input
+              type="email"
+              name="Email"
+              placeholder="Email"
+              onChange={handleChange}
+            />
+
+            <input
+              type="tel"
+              maxLength="11"
+              name="contact_number"
+              placeholder="Contact Number"
+              onChange={handleChange}
+            />
 
             <select name="college" defaultValue="" onChange={handleChange}>
               <option value="" disabled>
@@ -131,11 +142,6 @@ export default function SignupPage() {
             <input
               type="number"
               name="emergency_contact.contact_number"
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="contact_number"
               onChange={handleChange}
             />
           </>
