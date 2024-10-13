@@ -21,7 +21,9 @@ export default function Dashboard({ session, setSession }) {
     "Yahallo!",
     "Hello, bro!",
   ];
-  const randomGeneratedNumber = Math.floor(Math.random() * 10);
+
+  const randomGreetingIndex = Math.floor(Math.random() * randomGreeting.length);
+  const greeting = randomGreeting[randomGreetingIndex];
 
   const handleLogout = () => {
     sessionStorage.removeItem("session");
@@ -32,8 +34,7 @@ export default function Dashboard({ session, setSession }) {
   return (
     <div>
       <h1>
-        {randomGreeting[randomGeneratedNumber]}{" "}
-        {user.given_name === "" ? user.id_number : user.given_name}
+        {greeting} {user.given_name || user.id_number}
       </h1>
       <div>
         <a>Profile</a>
