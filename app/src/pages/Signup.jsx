@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../services/supabaseClient"; 
-import { fetchRegions, fetchProvincesByRegion, fetchCitiesMunicipalitiesByProvince, fetchBarangaysByCityMunicipality } from "../api/psgcApi"; 
+import { supabase } from "../services/supabaseClient";
+import {
+  fetchRegions,
+  fetchProvincesByRegion,
+  fetchCitiesMunicipalitiesByProvince,
+  fetchBarangaysByCityMunicipality,
+} from "../api/psgcApi";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -61,7 +66,7 @@ export default function SignupPage() {
 
   const handleRegionChange = (event) => {
     const regionCode = event.target.value;
-    handleChange(event); 
+    handleChange(event);
 
     fetchProvincesByRegion(regionCode)
       .then((data) => setProvinces(data))
@@ -106,6 +111,12 @@ export default function SignupPage() {
           onChange={handleChange}
         />
         <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+        />
+        <input
           type="text"
           name="given_name"
           placeholder="Given Name"
@@ -127,12 +138,7 @@ export default function SignupPage() {
         {isStudent && (
           <>
             <input type="date" name="date_of_birth" onChange={handleChange} />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              onChange={handleChange}
-            />
+
             <input
               type="tel"
               maxLength="11"
@@ -164,9 +170,7 @@ export default function SignupPage() {
             </select>
 
             <select name="region" onChange={handleRegionChange}>
-              <option value="">
-                -- Select Region --
-              </option>
+              <option value="">-- Select Region --</option>
               {regions.map((region) => (
                 <option key={region.code} value={region.code}>
                   {region.name}
@@ -175,9 +179,7 @@ export default function SignupPage() {
             </select>
 
             <select name="province" onChange={handleProvinceChange}>
-              <option value="">
-                -- Select Province --
-              </option>
+              <option value="">-- Select Province --</option>
               {provinces.map((province) => (
                 <option key={province.code} value={province.code}>
                   {province.name}
@@ -185,10 +187,11 @@ export default function SignupPage() {
               ))}
             </select>
 
-            <select name="city_municipality" onChange={handleCityMunicipalityChange}>
-              <option value="">
-                -- Select City/Municipality --
-              </option>
+            <select
+              name="city_municipality"
+              onChange={handleCityMunicipalityChange}
+            >
+              <option value="">-- Select City/Municipality --</option>
               {cities.map((city) => (
                 <option key={city.code} value={city.code}>
                   {city.name}
@@ -197,9 +200,7 @@ export default function SignupPage() {
             </select>
 
             <select name="barangay" onChange={handleChange}>
-              <option value="">
-                -- Select Barangay --
-              </option>
+              <option value="">-- Select Barangay --</option>
               {barangays.map((barangay) => (
                 <option key={barangay.code} value={barangay.code}>
                   {barangay.name}
@@ -207,7 +208,12 @@ export default function SignupPage() {
               ))}
             </select>
 
-            <input type="text" name="street" placeholder="Street" onChange={handleChange} />
+            <input
+              type="text"
+              name="street"
+              placeholder="Street"
+              onChange={handleChange}
+            />
 
             <p>In case of emergency:</p>
             <input
