@@ -21,7 +21,7 @@ export default function SignupPage() {
     email: "",
     contact_number: "",
     college: "",
-    course: "",
+    program: "",
     section: "",
     street: "",
     barangay: "",
@@ -124,7 +124,7 @@ export default function SignupPage() {
             email: formData.email,
             contact_number: formData.contact_number,
             college: formData.college,
-            course: formData.course,
+            program: formData.program,
             section: formData.section,
             street: formData.street,
             barangay: formData.barangay,
@@ -214,19 +214,24 @@ export default function SignupPage() {
                 -- College --
               </option>
               <option value="CCSICT">CCSICT</option>
-              <option value="CED">CED</option>
             </select>
 
             <select
-              name="course"
+              name="program"
               defaultValue=""
               onChange={handleChange}
               required
             >
               <option value="" disabled>
-                -- Course --
+                -- Program --
               </option>
               <option value="Computer Science">Computer Science</option>
+              <option value="Information Technology">
+                Information Technology
+              </option>
+              <option value="Entertainment and Multimedia Computing">
+                Entertainment and Multimedia Computing
+              </option>
             </select>
 
             <select
@@ -239,6 +244,16 @@ export default function SignupPage() {
                 -- Section --
               </option>
               <option value="Business Analytics">Business Analytics</option>
+              <option value="Business Processing Outsourcing">
+                Business Processing Outsourcing
+              </option>
+              <option value="Data Mining">Data Mining</option>
+              <option value="Digital Animation">Digital Animation</option>
+              <option value="Game Development">Game Development</option>
+              <option value="Network Security">Network Security</option>
+              <option value="Web and Mobile Application Development">
+                Web and Mobile Application Development
+              </option>
             </select>
 
             <select name="region" onChange={handleRegionChange} required>
