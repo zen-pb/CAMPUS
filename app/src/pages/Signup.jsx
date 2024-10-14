@@ -42,10 +42,7 @@ export default function SignupPage() {
 
     setFormData((prevFormData) => {
       if (keys.length === 1) {
-        return {
-          ...prevFormData,
-          [name]: value,
-        };
+        return { ...prevFormData, [name]: value };
       } else {
         return {
           ...prevFormData,
@@ -59,44 +56,94 @@ export default function SignupPage() {
   };
 
   useEffect(() => {
-    fetchRegions()
-      .then((data) => setRegions(data))
-      .catch((error) => console.error("Error fetching regions:", error));
+    const fetchRegionsData = async () => {
+      try {
+        const data = await fetchRegions();
+        setRegions(data);
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+      }
+    };
+
+    fetchRegionsData();
   }, []);
 
-  const handleRegionChange = (event) => {
+  const handleRegionChange = async (event) => {
     const regionCode = event.target.value;
     handleChange(event);
 
-    fetchProvincesByRegion(regionCode)
-      .then((data) => setProvinces(data))
-      .catch((error) => console.error("Error fetching provinces:", error));
+    try {
+      const data = await fetchProvincesByRegion(regionCode);
+      setProvinces(data);
+      setCities([]); // Clear cities when region changes
+      setBarangays([]); // Clear barangays when region changes
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+    }
   };
 
-  // Handle province change
-  const handleProvinceChange = (event) => {
+  const handleProvinceChange = async (event) => {
     const provinceCode = event.target.value;
     handleChange(event);
 
-    fetchCitiesMunicipalitiesByProvince(provinceCode)
-      .then((data) => setCities(data))
-      .catch((error) => console.error("Error fetching cities:", error));
+    try {
+      const data = await fetchCitiesMunicipalitiesByProvince(provinceCode);
+      setCities(data);
+      setBarangays([]); // Clear barangays when province changes
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
   };
 
-  // Handle city/municipality change
-  const handleCityMunicipalityChange = (event) => {
+  const handleCityMunicipalityChange = async (event) => {
     const cityCode = event.target.value;
     handleChange(event);
 
-    fetchBarangaysByCityMunicipality(cityCode)
-      .then((data) => setBarangays(data))
-      .catch((error) => console.error("Error fetching barangays:", error));
+    try {
+      const data = await fetchBarangaysByCityMunicipality(cityCode);
+      setBarangays(data);
+    } catch (error) {
+      console.error("Error fetching barangays:", error);
+    }
   };
 
   const handleSignup = async (event) => {
     event.preventDefault();
-
     setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from("users") // Assuming you're inserting into a users table
+        .insert([
+          {
+            id_number: formData.id_number,
+            given_name: formData.given_name,
+            middle_name: formData.middle_name,
+            last_name: formData.last_name,
+            date_of_birth: formData.date_of_birth,
+            email: formData.email,
+            contact_number: formData.contact_number,
+            college: formData.college,
+            course: formData.course,
+            section: formData.section,
+            street: formData.street,
+            barangay: formData.barangay,
+            city_municipality: formData.city_municipality,
+            province: formData.province,
+            region: formData.region,
+            emergency_contact: formData.emergency_contact,
+            user_type: isStudent ? "student" : "educator", // Example of user_type
+          },
+        ]);
+
+      if (error) throw error;
+      navigate("/login"); // Redirect to login after signup
+    } catch (error) {
+      console.error("Signup error:", error);
+      alert("Error signing up: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,18 +156,21 @@ export default function SignupPage() {
           pattern="^\d{2}-\d{5}$"
           maxLength="8"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
           name="email"
           placeholder="Email"
           onChange={handleChange}
+          required
         />
         <input
           type="text"
           name="given_name"
           placeholder="Given Name"
           onChange={handleChange}
+          required
         />
         <input
           type="text"
@@ -133,11 +183,17 @@ export default function SignupPage() {
           name="last_name"
           placeholder="Last Name"
           onChange={handleChange}
+          required
         />
 
         {isStudent && (
           <>
-            <input type="date" name="date_of_birth" onChange={handleChange} />
+            <input
+              type="date"
+              name="date_of_birth"
+              onChange={handleChange}
+              required
+            />
 
             <input
               type="tel"
@@ -145,9 +201,15 @@ export default function SignupPage() {
               name="contact_number"
               placeholder="Contact Number"
               onChange={handleChange}
+              required
             />
 
-            <select name="college" defaultValue="" onChange={handleChange}>
+            <select
+              name="college"
+              defaultValue=""
+              onChange={handleChange}
+              required
+            >
               <option value="" disabled>
                 -- College --
               </option>
@@ -155,21 +217,31 @@ export default function SignupPage() {
               <option value="CED">CED</option>
             </select>
 
-            <select name="course" defaultValue="" onChange={handleChange}>
+            <select
+              name="course"
+              defaultValue=""
+              onChange={handleChange}
+              required
+            >
               <option value="" disabled>
                 -- Course --
               </option>
               <option value="Computer Science">Computer Science</option>
             </select>
 
-            <select name="section" defaultValue="" onChange={handleChange}>
+            <select
+              name="section"
+              defaultValue=""
+              onChange={handleChange}
+              required
+            >
               <option value="" disabled>
                 -- Section --
               </option>
               <option value="Business Analytics">Business Analytics</option>
             </select>
 
-            <select name="region" onChange={handleRegionChange}>
+            <select name="region" onChange={handleRegionChange} required>
               <option value="">-- Select Region --</option>
               {regions.map((region) => (
                 <option key={region.code} value={region.code}>
@@ -178,7 +250,12 @@ export default function SignupPage() {
               ))}
             </select>
 
-            <select name="province" onChange={handleProvinceChange}>
+            <select
+              name="province"
+              onChange={handleProvinceChange}
+              required
+              disabled={!formData.region}
+            >
               <option value="">-- Select Province --</option>
               {provinces.map((province) => (
                 <option key={province.code} value={province.code}>
@@ -190,6 +267,8 @@ export default function SignupPage() {
             <select
               name="city_municipality"
               onChange={handleCityMunicipalityChange}
+              required
+              disabled={!formData.province}
             >
               <option value="">-- Select City/Municipality --</option>
               {cities.map((city) => (
@@ -199,7 +278,12 @@ export default function SignupPage() {
               ))}
             </select>
 
-            <select name="barangay" onChange={handleChange}>
+            <select
+              name="barangay"
+              onChange={handleChange}
+              required
+              disabled={!formData.city_municipality}
+            >
               <option value="">-- Select Barangay --</option>
               {barangays.map((barangay) => (
                 <option key={barangay.code} value={barangay.code}>
@@ -213,6 +297,8 @@ export default function SignupPage() {
               name="street"
               placeholder="Street"
               onChange={handleChange}
+              required
+              disabled={!formData.barangay}
             />
 
             <p>In case of emergency:</p>
@@ -221,12 +307,14 @@ export default function SignupPage() {
               name="emergency_contact.guardian"
               placeholder="Guardian"
               onChange={handleChange}
+              required
             />
             <input
-              type="number"
+              type="tel"
               name="emergency_contact.contact_number"
               placeholder="Contact Number"
               onChange={handleChange}
+              required
             />
           </>
         )}
@@ -235,6 +323,7 @@ export default function SignupPage() {
           name="user_type"
           defaultValue=""
           onChange={(e) => setIsStudent(e.target.value === "student")}
+          required
         >
           <option value="" disabled>
             -- Account Type --
