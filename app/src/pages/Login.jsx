@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
+import bcrypt from "bcryptjs";
 
 export default function Login({ setSession }) {
   const navigate = useNavigate();
@@ -10,7 +11,6 @@ export default function Login({ setSession }) {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
     setLoading(true);
 
     const { data: user, error: fetchError } = await supabase
@@ -21,10 +21,13 @@ export default function Login({ setSession }) {
 
     if (fetchError) {
       console.log(`Error fetching user: ${fetchError.message}`);
+      setLoading(false);
+      return; // Exit early on error
     }
 
     if (user) {
-      const isPasswordValid = password === user.password;
+      // Use bcrypt to compare the password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
       const { data: userData, error: fetchError } = await supabase
         .from(`${user.user_type}s`)
@@ -34,6 +37,8 @@ export default function Login({ setSession }) {
 
       if (fetchError) {
         console.log(`Error fetching user: ${fetchError.message}`);
+        setLoading(false);
+        return; // Exit early on error
       }
 
       if (isPasswordValid) {
