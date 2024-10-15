@@ -11,7 +11,7 @@ import {
 export default function SignupPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [isStudent, setIsStudent] = useState(false);
+  const [accountType, setAccountType] = useState("");
   const [formData, setFormData] = useState({
     id_number: "",
     given_name: "",
@@ -70,7 +70,13 @@ export default function SignupPage() {
 
   const handleRegionChange = async (event) => {
     const regionCode = event.target.value;
+    const selectedRegion = regions.find((region) => region.code === regionCode);
     handleChange(event);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      region: selectedRegion.name, // Store the region name
+    }));
 
     try {
       const data = await fetchProvincesByRegion(regionCode);
@@ -84,7 +90,15 @@ export default function SignupPage() {
 
   const handleProvinceChange = async (event) => {
     const provinceCode = event.target.value;
+    const selectedProvince = provinces.find(
+      (province) => province.code === provinceCode
+    );
     handleChange(event);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      province: selectedProvince.name, // Store the province name
+    }));
 
     try {
       const data = await fetchCitiesMunicipalitiesByProvince(provinceCode);
@@ -97,7 +111,13 @@ export default function SignupPage() {
 
   const handleCityMunicipalityChange = async (event) => {
     const cityCode = event.target.value;
+    const selectedCity = cities.find((city) => city.code === cityCode);
     handleChange(event);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      city_municipality: selectedCity.name, // Store the city name
+    }));
 
     try {
       const data = await fetchBarangaysByCityMunicipality(cityCode);
@@ -107,37 +127,54 @@ export default function SignupPage() {
     }
   };
 
+  const handleBarangayChange = (event) => {
+    const barangayCode = event.target.value;
+    const selectedBarangay = barangays.find(
+      (barangay) => barangay.code === barangayCode
+    );
+    handleChange(event);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      barangay: selectedBarangay.name, // Store the barangay name
+    }));
+  };
+
   const handleSignup = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("users") // Assuming you're inserting into a users table
-        .insert([
-          {
-            id_number: formData.id_number,
-            given_name: formData.given_name,
-            middle_name: formData.middle_name,
-            last_name: formData.last_name,
-            date_of_birth: formData.date_of_birth,
-            email: formData.email,
-            contact_number: formData.contact_number,
-            college: formData.college,
-            program: formData.program,
-            section: formData.section,
-            street: formData.street,
-            barangay: formData.barangay,
-            city_municipality: formData.city_municipality,
-            province: formData.province,
-            region: formData.region,
-            emergency_contact: formData.emergency_contact,
-            user_type: isStudent ? "student" : "educator", // Example of user_type
-          },
-        ]);
+      const { error } = await supabase.from(`${accountType}s`).insert([
+        {
+          id_number: formData.id_number,
+          given_name: formData.given_name,
+          middle_name: formData.middle_name,
+          surname: formData.last_name,
+          date_of_birth: formData.date_of_birth,
+          email: formData.email,
+          contact_number: formData.contact_number,
+          college: formData.college,
+          program: formData.program,
+          section: formData.section,
+          street: formData.street,
+          barangay: formData.barangay,
+          city_municipality: formData.city_municipality,
+          province: formData.province,
+          region: formData.region,
+          emergency_contact: formData.emergency_contact,
+        },
+      ]);
 
       if (error) throw error;
-      navigate("/login"); // Redirect to login after signup
+
+      alert(
+        "Signup successful! Please wait while we verify your information. We will send you an update via email."
+      );
+
+      setTimeout(() => {
+        navigate("/login"); // Redirect to login after 15 seconds
+      }, 15000);
     } catch (error) {
       console.error("Signup error:", error);
       alert("Error signing up: " + error.message);
@@ -186,7 +223,7 @@ export default function SignupPage() {
           required
         />
 
-        {isStudent && (
+        {accountType === "student" && (
           <>
             <input
               type="date"
@@ -295,7 +332,7 @@ export default function SignupPage() {
 
             <select
               name="barangay"
-              onChange={handleChange}
+              onChange={handleBarangayChange}
               required
               disabled={!formData.city_municipality}
             >
@@ -313,14 +350,13 @@ export default function SignupPage() {
               placeholder="Street"
               onChange={handleChange}
               required
-              disabled={!formData.barangay}
             />
 
-            <p>In case of emergency:</p>
+            <h4>Emergency Contact</h4>
             <input
               type="text"
               name="emergency_contact.guardian"
-              placeholder="Guardian"
+              placeholder="Guardian Name"
               onChange={handleChange}
               required
             />
@@ -334,26 +370,11 @@ export default function SignupPage() {
           </>
         )}
 
-        <select
-          name="user_type"
-          defaultValue=""
-          onChange={(e) => setIsStudent(e.target.value === "student")}
-          required
-        >
-          <option value="" disabled>
-            -- Account Type --
-          </option>
-          <option value="student">Student</option>
-          <option value="educator">Educator</option>
-        </select>
-
-        <button disabled={loading}>
-          {loading ? <span>Redirecting...</span> : <span>Signup</span>}
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
+        <Link to="/login">Already have an account? Login</Link>
       </form>
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
     </div>
   );
 }
