@@ -350,9 +350,10 @@ export default function SignupPage() {
               placeholder="Street"
               onChange={handleChange}
               required
+              disabled={!formData.barangay}
             />
 
-            <h4>Emergency Contact</h4>
+            <p>In case of emergency:</p>
             <input
               type="text"
               name="emergency_contact.guardian"
@@ -370,11 +371,26 @@ export default function SignupPage() {
           </>
         )}
 
+        <select
+          name="user_type"
+          defaultValue=""
+          onChange={(e) => setAccountType(e.target.value)}
+          required
+        >
+          <option value="" disabled>
+            -- Account Type --
+          </option>
+          <option value="student">Student</option>
+          <option value="educator">Educator</option>
+        </select>
+
         <button type="submit" disabled={loading}>
           {loading ? "Signing up..." : "Sign Up"}
         </button>
-        <Link to="/login">Already have an account? Login</Link>
       </form>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 }
