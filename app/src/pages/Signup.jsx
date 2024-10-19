@@ -7,6 +7,8 @@ import {
   fetchCitiesMunicipalitiesByProvince,
   fetchBarangaysByCityMunicipality,
 } from "../api/psgcApi";
+import UserInfo from "../components/UserInfo";
+import bcrypt from "bcryptjs";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -16,9 +18,10 @@ export default function SignupPage() {
     id_number: "",
     given_name: "",
     middle_name: "",
-    last_name: "",
+    surname: "",
     date_of_birth: "",
     email: "",
+    password: "",
     contact_number: "",
     college: "",
     program: "",
@@ -145,24 +148,15 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
+      const hashedPassword = await bcrypt.hash(formData.password, 10);
       const { error } = await supabase.from(`${accountType}s`).insert([
         {
-          id_number: formData.id_number,
-          given_name: formData.given_name,
-          middle_name: formData.middle_name,
-          surname: formData.last_name,
-          date_of_birth: formData.date_of_birth,
-          email: formData.email,
-          contact_number: formData.contact_number,
-          college: formData.college,
-          program: formData.program,
-          section: formData.section,
-          street: formData.street,
-          barangay: formData.barangay,
-          city_municipality: formData.city_municipality,
-          province: formData.province,
-          region: formData.region,
-          emergency_contact: formData.emergency_contact,
+          ...formData,
+          password: hashedPassword, // Store the hashed password
+          emergency_contact: [
+            formData.emergency_contact.guardian,
+            formData.emergency_contact.contact_number,
+          ],
         },
       ]);
 
@@ -171,10 +165,29 @@ export default function SignupPage() {
       alert(
         "Signup successful! Please wait while we verify your information. We will send you an update via email."
       );
+      setFormData({
+        id_number: "",
+        given_name: "",
+        middle_name: "",
+        last_name: "",
+        date_of_birth: "",
+        email: "",
+        password: "",
+        contact_number: "",
+        college: "",
+        program: "",
+        section: "",
+        street: "",
+        barangay: "",
+        city_municipality: "",
+        province: "",
+        region: "",
+        emergency_contact: { guardian: "", contact_number: "" },
+      });
 
       setTimeout(() => {
-        navigate("/login"); // Redirect to login after 15 seconds
-      }, 15000);
+        navigate("/login");
+      }, 5000);
     } catch (error) {
       console.error("Signup error:", error);
       alert("Error signing up: " + error.message);
@@ -186,45 +199,11 @@ export default function SignupPage() {
   return (
     <div>
       <form onSubmit={handleSignup}>
-        <input
-          type="text"
-          name="id_number"
-          placeholder="ID Number"
-          pattern="^\d{2}-\d{5}$"
-          maxLength="8"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="given_name"
-          placeholder="Given Name"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="middle_name"
-          placeholder="Middle Name"
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="last_name"
-          placeholder="Last Name"
-          onChange={handleChange}
-          required
-        />
+        <UserInfo handleChange={handleChange} />
 
         {accountType === "student" && (
           <>
+            <h2>Additional Information</h2>
             <input
               type="date"
               name="date_of_birth"
@@ -293,6 +272,8 @@ export default function SignupPage() {
               </option>
             </select>
 
+            <h2>Address</h2>
+
             <select name="region" onChange={handleRegionChange} required>
               <option value="">-- Select Region --</option>
               {regions.map((region) => (
@@ -353,7 +334,7 @@ export default function SignupPage() {
               disabled={!formData.barangay}
             />
 
-            <p>In case of emergency:</p>
+            <h2>In case of emergency</h2>
             <input
               type="text"
               name="emergency_contact.guardian"
@@ -370,6 +351,23 @@ export default function SignupPage() {
             />
           </>
         )}
+
+        <h2>Account Information</h2>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+          required
+        />
 
         <select
           name="user_type"
