@@ -1,19 +1,13 @@
 export default function UserInfo({ handleChange }) {
   return (
     <>
+    <h2>Basic Information</h2>
       <input
         type="text"
         name="id_number"
         placeholder="ID Number"
         pattern="^\d{2}-\d{5}$"
         maxLength="8"
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
         onChange={handleChange}
         required
       />
@@ -32,7 +26,7 @@ export default function UserInfo({ handleChange }) {
       />
       <input
         type="text"
-        name="last_name"
+        name="surname"
         placeholder="Last Name"
         onChange={handleChange}
         required
