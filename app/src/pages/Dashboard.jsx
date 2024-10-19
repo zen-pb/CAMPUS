@@ -9,35 +9,20 @@ export default function Dashboard({ session, setSession }) {
     given_name: session.user.given_name || "",
     user_type: session.userType,
   });
+  const greetingName =
+    user.given_name || (user.id_number === "09-10009" ? "Admin" : "");
+
   const randomGreeting = [
-    `Hey there, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `How's it going, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }?`,
-    `What's up, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }?`,
-    `Greetings, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `Yo, ${user.given_name || (user.id_number === "09-10009" ? "Admin" : "")}!`,
-    `Howdy, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `Hiya, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `Good to see you, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `Yahallo, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
-    `Hello bro, ${
-      user.given_name || (user.id_number === "09-10009" ? "Admin" : "")
-    }!`,
+    `Hey there, ${greetingName}!`,
+    `How's it going, ${greetingName}?`,
+    `What's up, ${greetingName}?`,
+    `Greetings, ${greetingName}!`,
+    `Yo, ${greetingName}!`,
+    `Howdy, ${greetingName}!`,
+    `Hiya, ${greetingName}!`,
+    `Good to see you, ${greetingName}!`,
+    `Yahallo, ${greetingName}!`,
+    `Hello bro, ${greetingName}!`,
   ];
 
   const randomGreetingIndex = Math.floor(Math.random() * randomGreeting.length);
