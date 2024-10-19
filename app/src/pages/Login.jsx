@@ -25,7 +25,9 @@ export default function Login({ setSession }) {
       return; // Exit early on error
     }
 
-    if (user) {
+    if (!user.is_verified) {
+      alert("Not yet verified!");
+    } else if (user) {
       // Use bcrypt to compare the password
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -51,7 +53,7 @@ export default function Login({ setSession }) {
         alert("Wrong Password");
       }
     } else {
-      alert("Not registered");
+      alert("Account not registered");
     }
 
     setLoading(false);
