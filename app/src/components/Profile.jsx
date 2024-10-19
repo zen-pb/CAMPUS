@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Profile({ session }, user_type) {
+export default function Profile({ session }) {
   const [userData, setUserData] = useState({
     id_number: session.user.id_number,
     given_name: session.user.given_name,
