@@ -7,7 +7,7 @@ import {
   fetchCitiesMunicipalitiesByProvince,
   fetchBarangaysByCityMunicipality,
 } from "../api/psgcApi";
-import UserInfo from "../components/UserInfo";
+import { UserInfo } from "../components/";
 import bcrypt from "bcryptjs";
 
 export default function SignupPage() {
