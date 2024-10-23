@@ -63,7 +63,6 @@ export default function Login({ setSession }) {
     <div>
       <form onSubmit={handleLogin}>
         <input
-          className="bg-red"
           type="text"
           placeholder="ID Number"
           pattern="^\d{2}-\d{5}$"
