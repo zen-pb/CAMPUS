@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, Outlet } from "react-router-dom";
 import {
   Login,
   Signup,
   ForgotPassword,
   ResetPassword,
+  UserManagement,
+  CourseManagement,
+  ScheduleManagement,
+  Reports,
+  Notifications,
+  Settings,
   Dashboard,
 } from "./pages";
+import Layout from "./Layout";
 
 function App() {
   const navigate = useNavigate();
@@ -21,7 +28,8 @@ function App() {
   useEffect(() => {
     const handleStorageChange = () => {
       const sessionData = sessionStorage.getItem("session");
-      setSession(sessionData ? JSON.parse(sessionData) : null);
+      const parsedData = sessionData ? JSON.parse(sessionData) : null;
+      setSession(parsedData);
     };
 
     handleStorageChange();
@@ -48,18 +56,33 @@ function App() {
           }
         />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Protected Routes */}
         <Route
-          path="/dashboard"
+          path="/*"
           element={
             session ? (
-              <Dashboard session={session} setSession={setSession} />
+              <Layout session={session} setSession={setSession} />
             ) : (
               <Navigate to="/login" />
             )
           }
-        />
-        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
-        <Route path="/reset-password" element={<ResetPassword />} />
+        >
+          {/* Relative Paths */}
+          <Route
+            path="dashboard"
+            element={<Dashboard session={session} setSession={setSession} />}
+          />{" "}
+          {/* Use relative path */}
+          <Route path="user-management" element={<UserManagement />} />
+          <Route path="course-management" element={<CourseManagement />} />
+          <Route path="schedule-management" element={<ScheduleManagement />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
       </Routes>
     </>
   );
